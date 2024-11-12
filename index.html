@@ -155,7 +155,11 @@
             const geoPath = d3.geoPath().projection(projection);
 
             const colorScale = d3.scaleDiverging(d3.interpolateSpectral) 
-                .domain([d3.min(geojson.features, d => d.properties.POP2010 - d.properties.POP1980), 0, d3.max(geojson.features, d => d.properties.POP2010 - d.properties.POP1980)]);
+                .domain([
+                    d3.min(geojson.features, d => d.properties.POP2010 - d.properties.POP1980),
+                    0,
+                    d3.max(geojson.features, d => d.properties.POP2010 - d.properties.POP1980)
+                ]);
 
             svg.selectAll("path")
                 .data(geojson.features)
@@ -163,7 +167,16 @@
                 .attr("d", geoPath)
                 .attr("fill", d => colorScale(d.properties.POP2010 - d.properties.POP1980))
                 .on("mouseenter", (event, d) => {
-                    tooltip.style("opacity", .9).html(`${d.properties.TOWN}<br>Population change (1980 - 2010): ${d.properties.POP2010 - d.properties.POP1980}`)
+                    const pop1980 = d.properties.POP1980 || 'No data';
+                    const pop2010 = d.properties.POP2010 || 'No data';
+                    const popChange = d.properties.POP2010 - d.properties.POP1980 || 'N/A';
+                    tooltip.style("opacity", .9)
+                        .html(`
+                            <strong>${d.properties.TOWN}</strong><br>
+                            Population in 1980: ${pop1980}<br>
+                            Population in 2010: ${pop2010}<br>
+                            Population change (1980 - 2010): ${popChange}
+                        `)
                         .style("left", `${event.pageX + 10}px`)
                         .style("top", `${event.pageY + 10}px`);
                 })
